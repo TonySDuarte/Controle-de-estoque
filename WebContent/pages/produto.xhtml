@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	template="/template/modeloSistema.xhtml">
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menu.xhtml" />
+	</ui:define>
+
+	<ui:define name="conteudo">
+
+		<h:form id="form">
+
+			<p:dataTable id="tabela" widgetVar="tabelaProdutos"
+				emptyMessage="Nenhum registro encontrado!" value="#{PBean.itens}"
+				var="item" paginator="true" rows="10"
+				filteredValue="#{PBean.itensFilt}" style="text-align: center;">
+
+				<f:facet name="header">Lista de Produtos</f:facet>
+
+				<p:column headerText="Id" sortBy="#{item.id}" style="width:5%;">
+					<h:outputText value="#{item.id}" />
+				</p:column>
+
+				<p:column headerText="Produto" sortBy="#{item.nome}"
+					style="width:50%;" filterBy="#{item.nome}">
+					<h:outputText value="#{item.nome}" />
+				</p:column>
+
+				<p:column headerText="Quantidade" sortBy="#{item.quantidade}">
+					<h:outputText value="#{item.quantidade}" />
+				</p:column>
+
+				<p:column headerText="Preço" sortBy="#{item.preco}">
+					<h:outputText value="R$ #{item.preco}" />
+				</p:column>
+
+				<p:column headerText="Opções" style="width:10%;">
+					<p:commandButton icon="ui-icon-trash"
+						oncomplete="PF('dlgExcluir').show();"
+						update=":formExcluir:pgExcluir">
+						<f:setPropertyActionListener value="#{item}"
+							target="#{PBean.produto}"></f:setPropertyActionListener>
+					</p:commandButton>
+
+					<p:commandButton icon="ui-icon-pencil"
+						oncomplete="PF('dlgEditar').show();" update=":formEditar:pgEditar">
+						<f:setPropertyActionListener value="#{item}"
+							target="#{PBean.produto}"></f:setPropertyActionListener>
+					</p:commandButton>
+				</p:column>
+
+				<f:facet name="footer">
+					<p:commandButton value="Novo" actionListener="#{PBean.reset}"
+						oncomplete="PF('dlgSalvar').show();" update=":formPanel:panelGrid" />
+				</f:facet>
+
+			</p:dataTable>
+		</h:form>
+
+		<p:dialog widgetVar="dlgSalvar" closable="false" draggable="false"
+			resizable="false" header="Cadastar Fornecedor">
+			<h:form id="formPanel">
+
+				<h:panelGrid id="panelGrid" columns="2">
+					<p:outputLabel value="Nome:" />
+					<h:inputText size="30" maxlength="50" value="#{PBean.produto.nome}" />
+
+					<p:outputLabel value="Quantidade" />
+					<h:inputText size="30" maxlength="50"
+						value="#{PBean.produto.quantidade}" />
+
+					<p:outputLabel value="Preço"/>
+					<h:inputText size="5" value="#{PBean.produto.preco}" />
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Salvar" actionListener="#{PBean.cadastrar}"
+						oncomplete="PF('dlgSalvar').hide(); PF('tabelaProdutos').clearFilters();"
+						update=":form:tabela :msgGrowl" />
+					<p:commandButton value="Cancelar" onclick="PF('dlgSalvar').hide();" />
+				</h:panelGrid>
+
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgExcluir" closable="false" draggable="false"
+			resizable="false" header="Excluir produto">
+			<h:form id="formExcluir">
+
+				<h:panelGrid id="pgExcluir" columns="2">
+					<h:outputText value="Nome:" />
+					<h:outputText value="#{PBean.produto.nome}" />
+
+					<h:outputText value="Quantidade:" />
+					<h:outputText value="#{PBean.produto.quantidade}" />
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Excluir" actionListener="#{PBean.excluir}"
+						oncomplete="PF('dlgExcluir').hide(); PF('tabelaProdutos').clearFilters();"
+						update=":form:tabela :msgGrowl" />
+					<p:commandButton value="Cancelar"
+						onclick="PF('dlgExcluir').hide();" />
+				</h:panelGrid>
+
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgEditar" closable="false" draggable="false"
+			resizable="false" header="Editar">
+			<h:form id="formEditar">
+
+				<h:panelGrid id="pgEditar" columns="2">
+					<h:outputText value="ID:" />
+					<h:outputText value="#{PBean.produto.id}" />
+
+					<h:outputText value="Nome:" />
+					<h:inputText value="#{PBean.produto.nome}" />
+
+					<h:outputText value="Quantidade:" />
+					<h:inputText value="#{PBean.produto.quantidade}" />
+
+					<h:outputText value="Preço: " />
+					<h:inputText value="#{PBean.produto.preco}" />
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Editar" actionListener="#{PBean.editar}"
+						oncomplete="PF('dlgEditar').hide(); PF('tabelaProdutos').clearFilters();"
+						update=":form:tabela :msgGrowl" />
+					<p:commandButton value="Cancelar" onclick="PF('dlgEditar').hide();" />
+				</h:panelGrid>
+
+			</h:form>
+		</p:dialog>
+
+	</ui:define>
+
+</ui:composition>

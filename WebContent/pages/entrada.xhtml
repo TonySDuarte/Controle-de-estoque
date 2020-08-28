@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	template="/template/modeloSistema.xhtml">
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menu.xhtml" />
+	</ui:define>
+
+	<ui:define name="conteudo">
+
+		<h:form id="formEntrada">
+
+			<p:dataTable id="tabela" widgetVar="tabelaEntrada"
+				emptyMessage="Nenhum registro encontrado!" value="#{IEBean.itens}"
+				var="item" paginator="true" rows="10"
+				filteredValue="#{IEBean.itensFilt}" style="text-align: center;">
+
+				<f:facet name="header">Lista de Entrada</f:facet>
+
+				<p:column headerText="Id" sortBy="#{item.id}" style="width:5%;">
+					<h:outputText value="#{item.id}" />
+				</p:column>
+				<p:column headerText="Produto" sortBy="#{item.produto.nome}">
+					<h:outputText value="#{item.produto.nome}" />
+				</p:column>
+
+				<p:column headerText="Fornecedor" sortBy="#{item.fornecedor.nome}">
+					<h:outputText value="#{item.fornecedor.nome}" />
+				</p:column>
+
+				<p:column headerText="Quantidade" sortBy="#{item.quantidade}"
+					style="width:10%;">
+					<h:outputText value="#{item.quantidade}" />
+				</p:column>
+
+				<p:column headerText="Preço U/AT" sortBy="#{item.preco_at}"
+					style="width:10%;">
+					<h:outputText value="#{item.preco_at}" />
+				</p:column>
+
+				<p:column headerText="Preço U/VA" sortBy="#{item.produto.preco}"
+					style="width:10%;">
+					<h:outputText value="#{item.produto.preco}" />
+				</p:column>
+
+				<p:column headerText="Valor da entrada" sortBy="#{item.valor_total}"
+					style="width:10%;">
+					<h:outputText value="#{item.valor_total}" />
+				</p:column>
+
+				<p:column headerText="Opções" style="width:10%;">
+					<p:commandButton icon="ui-icon-trash"
+						oncomplete="PF('dlgExcluir').show();"
+						update=":formExcluir:pgExcluir">
+						<f:setPropertyActionListener value="#{item}"
+							target="#{IEBean.iEntrada}"></f:setPropertyActionListener>
+					</p:commandButton>
+
+					<p:commandButton icon="ui-icon-pencil"
+						oncomplete="PF('dlgEditar').show();" update=":formEditar:pgEditar"
+						actionListener="#{IEBean.prepararNovo()}">
+						<f:setPropertyActionListener value="#{item}"
+							target="#{IEBean.iEntrada}"></f:setPropertyActionListener>
+					</p:commandButton>
+				</p:column>
+
+				<f:facet name="footer">
+					<p:commandButton value="Novo"
+						actionListener="#{IEBean.prepararNovo()}"
+						oncomplete="PF('dlgSalvar').show();" update=":formPanel:panelGrid" />
+				</f:facet>
+
+			</p:dataTable>
+		</h:form>
+
+
+		<p:dialog widgetVar="dlgSalvar" closable="false" draggable="false"
+			resizable="false" header="Salvar Entrada">
+			<h:form id="formPanel">
+
+				<h:panelGrid id="panelGrid" columns="2">
+					<p:outputLabel value="Produto " />
+					<p:selectOneMenu value="#{IEBean.iEntrada.produto.id}"
+						filter="true">
+						<f:selectItem itemLabel="Selecione um produto" />
+						<f:selectItems value="#{IEBean.comboProduto}" var="item"
+							itemValue="#{item.id}" itemLabel="#{item.nome}">
+						</f:selectItems>
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Quantiade" />
+					<h:inputText size="30" maxlength="50"
+						value="#{IEBean.iEntrada.quantidade}" />
+
+					<p:outputLabel value="Preço AT" />
+					<h:inputText size="30" maxlength="50"
+						value="#{IEBean.iEntrada.preco_at}" />
+
+					<p:outputLabel value="Valor total" />
+					<h:inputText size="30" maxlength="50"
+						value="#{IEBean.iEntrada.valor_total}" />
+
+					<p:outputLabel value="Fornecedor: " />
+					<p:selectOneMenu value="#{IEBean.iEntrada.fornecedor.id_f}">
+						<f:selectItem itemLabel="Selecione um fornecedor" />
+						<f:selectItems value="#{IEBean.comboFornecedor}" var="item"
+							itemValue="#{item.id_f}" itemLabel="#{item.nome}">
+						</f:selectItems>
+					</p:selectOneMenu>
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Salvar"
+						actionListener="#{IEBean.cadastrar}"
+						oncomplete="PF('dlgSalvar').hide(); PF('tabelaEntrada').clearFilters();"
+						update=":formEntrada:tabela :msgGrowl" />
+					<p:commandButton value="Cancelar" onclick="PF('dlgSalvar').hide();" />
+				</h:panelGrid>
+
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgExcluir" closable="false" draggable="false"
+			resizable="false" header="Excluir Entrada">
+			<h:form id="formExcluir">
+
+				<h:panelGrid id="pgExcluir" columns="2">
+					<h:outputText
+						value="Tem certeza que deseja excluir a entrada referente a este produto?" />
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Excluir"
+						actionListener="#{IEBean.excluir()}"
+						oncomplete="PF('dlgExcluir').hide(); PF('tabelaEntrada').clearFilters();"
+						update=":formEntrada:tabela :msgGrowl" />
+					<p:commandButton value="Cancelar"
+						onclick="PF('dlgExcluir').hide();" />
+				</h:panelGrid>
+
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgEditar" closable="false" draggable="false"
+			resizable="false" header="Editar">
+			<h:form id="formEditar">
+
+				<h:panelGrid id="pgEditar" columns="2">
+					<p:outputLabel value="Produto " />
+					<p:selectOneMenu value="#{IEBean.iEntrada.produto.id}">
+						<f:selectItem itemLabel="Selecione um produto" />
+						<f:selectItems value="#{IEBean.comboProduto}" var="item"
+							itemValue="#{item.id}" itemLabel="#{item.nome}">
+						</f:selectItems>
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Quantiade" />
+					<h:inputText size="30" maxlength="50"
+						value="#{IEBean.iEntrada.quantidade}" />
+
+					<p:outputLabel value="Preço AT" />
+					<h:inputText size="30" maxlength="50"
+						value="#{IEBean.iEntrada.preco_at}" />
+
+					<p:outputLabel value="Valor total" />
+					<h:inputText size="30" maxlength="50"
+						value="#{IEBean.iEntrada.valor_total}" />
+
+					<p:outputLabel value="Fornecedor: " />
+					<p:selectOneMenu value="#{IEBean.iEntrada.fornecedor.id_f}">
+						<f:selectItem itemLabel="Selecione um fornecedor" />
+						<f:selectItems value="#{IEBean.comboFornecedor}" var="item"
+							itemValue="#{item.id_f}" itemLabel="#{item.nome}">
+						</f:selectItems>
+					</p:selectOneMenu>
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Editar" actionListener="#{IEBean.editar}"
+						oncomplete="PF('dlgEditar').hide(); PF('tabelaEntrada').clearFilters();"
+						update=":formEntrada:tabela :msgGrowl" />
+					<p:commandButton value="Cancelar" onclick="PF('dlgEditar').hide();" />
+				</h:panelGrid>
+
+			</h:form>
+		</p:dialog>
+
+	</ui:define>
+</ui:composition>
